@@ -56,8 +56,8 @@ jobs:
             exit 0
           fi
 
-      - name: Commit and Push Changes
-        run: |
-          git add ai-rules.yaml
-          git commit -m "chore: update ai规则集 at $(date '+%Y-%m-%d %H:%M:%S')"
-          git push
+          - name: Commit and Push Changes
+          run: |
+            git add ai-rules.yaml
+            git commit -m "chore: update ai规则集 at $(date '+%Y-%m-%d %H:%M:%S')"
+            git push "https://${{ secrets.PAT }}@github.com/SuperNG6/clash-ruleset.git" HEAD:main
