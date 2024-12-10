@@ -60,4 +60,4 @@ jobs:
         run: |
           git add ai-rules.yaml
           git commit -m "chore: update ai规则集 at $(date '+%Y-%m-%d %H:%M:%S')"
-          git push "https://${{ secrets.ACTIONS_PAT }}@github.com/SuperNG6/clash-ruleset.git" HEAD:main
+          git push "https://${{ secrets.PAT }}@github.com/SuperNG6/clash-ruleset.git" HEAD:main
