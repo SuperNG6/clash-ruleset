@@ -1,38 +1,63 @@
-# .github/workflows/merge-rules.yml
-name: Merge Clash AI Rules
+name: Merge AI Rules
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # 每天 UTC 00:00 运行
-  workflow_dispatch:      # 允许手动触发
+    - cron: "0 0 * * *" # 每天0点执行一次（UTC时间），可根据需要调整
+  workflow_dispatch:
 
 jobs:
   merge-rules:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.PAT }}  # 使用 PAT 进行检出
+      - name: Checkout Repo
+        uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests pyyaml
+      - name: Fetch Gemini.yaml
+        run: curl -sL "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Gemini/Gemini.yaml" -o Gemini.yaml
 
-      - name: Merge rules
+      - name: Fetch OpenAI.yaml
+        run: curl -sL "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/OpenAI/OpenAI.yaml" -o OpenAI.yaml
+
+      - name: Fetch Claude.yaml
+        run: curl -sL "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Claude/Claude.yaml" -o Claude.yaml
+
+      # 合并逻辑：提取三个文件中 payload 下的规则行，并合并到 ai-rules.yaml 中。
+      # 假设 ai-rules.yaml 的结构与示例类似，即最终文件需要包含基本头部信息和 payload 块。
+      - name: Merge Rules
         run: |
-          python .github/scripts/merge_rules.py
-        
-      - name: Commit and push changes
+          # 提取 payload 段落（以 "payload:" 开头到文件末尾）的所有规则行。
+          # 同时可能需要去重，这里使用 sort + uniq 去重。
+          # 假设原始文件都是格式良好的 YAML，并且 payload 下的行格式为: "  - TYPE,VALUE"
+
+          # 提取三个文件的 payload 条目并合并
+          grep -E "^[[:space:]]+- " Gemini.yaml > Gemini_rules.txt
+          grep -E "^[[:space:]]+- " OpenAI.yaml >> Gemini_rules.txt
+          grep -E "^[[:space:]]+- " Claude.yaml >> Gemini_rules.txt
+
+          sort Gemini_rules.txt | uniq > merged_rules.txt
+
+          # 构建最终文件
+          echo "# NAME: AI规则集" > ai-rules.yaml
+          echo "# AUTHOR: your_name_or_bot" >> ai-rules.yaml
+          echo "# UPDATED: $(date '+%Y-%m-%d %H:%M:%S')" >> ai-rules.yaml
+          echo "# COMBINED FROM: Gemini, OpenAI, Claude" >> ai-rules.yaml
+          echo "payload:" >> ai-rules.yaml
+          cat merged_rules.txt >> ai-rules.yaml
+
+      - name: Check if changes
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add rules/ai_rules.yaml
-          git commit -m "Update AI rules $(date +%Y-%m-%d)" || exit 0
+          if git diff --quiet ai-rules.yaml; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+      - name: Commit and Push Changes
+        run: |
+          git add ai-rules.yaml
+          git commit -m "chore: update ai规则集 at $(date '+%Y-%m-%d %H:%M:%S')"
           git push
