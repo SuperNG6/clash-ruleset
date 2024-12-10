@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT }}  # 使用 PAT 进行检出
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -29,8 +31,8 @@ jobs:
         
       - name: Commit and push changes
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
           git add rules/ai_rules.yaml
           git commit -m "Update AI rules $(date +%Y-%m-%d)" || exit 0
           git push
