@@ -16,6 +16,12 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v4
 
+      - name: Set timezone to Asia/Shanghai
+        run: |
+          echo "Setting timezone to Asia/Shanghai"
+          sudo timedatectl set-timezone Asia/Shanghai
+          timedatectl
+
       - name: Set up Git
         run: |
           git config user.name "github-actions[bot]"

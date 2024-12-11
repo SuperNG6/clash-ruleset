@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 
 # 定义规则文件路径
-rule_files = ['rules/Gemini.yaml', 'rules/OpenAI.yaml', 'rules/Claude.yaml']
+rule_files = ['rules/Gemini.yaml', 'rules/OpenAI.yaml', 'rules/Claude.yaml', 'rules/CustomRules.yaml']
 
 # 初始化统计信息
 stats = {
@@ -21,30 +21,67 @@ merged_rules = set()
 # 用于存储来源信息
 sources = []
 
-for file in rule_files:
-    with open(file, 'r', encoding='utf-8') as f:
-        data = yaml.safe_load(f)
-        # 假设元数据在文件顶部的注释中，这里需要根据实际情况调整
-        # 如果元数据在 YAML 的特定字段中，可以直接读取
-        # 这里假设每个文件有一个 'metadata' 字段包含相关信息
-        metadata = data.get('metadata', {})
-        sources.append(metadata.get('NAME', 'Unknown'))
-        
-        payload = data.get('payload', [])
-        for rule in payload:
-            rule_type, value = rule.split(',', 1)
-            merged_rules.add(rule.strip())
-            if rule_type in stats:
-                stats[rule_type] += 1
+def extract_metadata(file_path):
+    metadata = {}
+    with open(file_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            if line.startswith('#'):
+                parts = line[1:].strip().split(':', 1)
+                if len(parts) == 2:
+                    key, value = parts
+                    metadata[key.strip().upper()] = value.strip()
             else:
-                stats[rule_type] = 1
-            stats['TOTAL'] += 1
+                break  # 假设元数据注释放在文件顶部的注释中
+    return metadata
+
+for file in rule_files:
+    if not os.path.exists(file):
+        print(f"文件 {file} 不存在，跳过。")
+        continue
+
+    metadata = extract_metadata(file)
+    source_name = metadata.get('NAME', 'Unknown')
+    sources.append(source_name)
+
+    # 解析 YAML 文件
+    with open(file, 'r', encoding='utf-8') as f:
+        # 跳过顶部的注释行
+        lines = []
+        for line in f:
+            if line.startswith('#'):
+                continue
+            lines.append(line)
+        try:
+            data = yaml.safe_load(''.join(lines))
+        except yaml.YAMLError as e:
+            print(f"解析 YAML 文件 {file} 时出错: {e}")
+            continue
+
+    payload = data.get('payload', [])
+    for rule in payload:
+        if isinstance(rule, str):
+            rule = rule.strip()
+            if not rule:
+                continue
+            parts = rule.split(',', 1)
+            if len(parts) != 2:
+                continue
+            rule_type, value = parts
+            rule_type = rule_type.strip().upper()
+            value = value.strip()
+            if rule_type and value:
+                merged_rules.add(f"{rule_type},{value}")
+                if rule_type in stats:
+                    stats[rule_type] += 1
+                else:
+                    stats[rule_type] = 1
+                stats['TOTAL'] += 1
 
 # 构建注释部分
 header_comments = [
     f"# NAME: AI规则集",
     f"# AUTHOR: SuperNG6",
-    f"# REPO: https://github.com/SuperNG6/clash-ruleset",
+    f"# REPO: https://github.com/SuperNG6/clash-ruleset", # 请确保此链接正确
     f"# UPDATED: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}",
 ]
 
@@ -65,3 +102,5 @@ with open('ai-rules.yaml', 'w', encoding='utf-8') as f:
     f.write('payload:\n')
     for rule in sorted(merged_rules):
         f.write(f"  - {rule}\n")
+
+print("合并完成，生成 ai-rules.yaml。")
