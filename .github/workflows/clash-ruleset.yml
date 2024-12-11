@@ -5,7 +5,6 @@ on:
     - cron: "0 0 * * *" # 每天0点执行一次（UTC时间），可根据需要调整
   workflow_dispatch:
 
-
 permissions:
   contents: write # 赋予写权限以允许 push 操作
   actions: read
@@ -15,43 +14,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Fetch Gemini.yaml
-        run: curl -sL "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Gemini/Gemini.yaml" -o Gemini.yaml
-
-      - name: Fetch OpenAI.yaml
-        run: curl -sL "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/OpenAI/OpenAI.yaml" -o OpenAI.yaml
-
-      - name: Fetch Claude.yaml
-        run: curl -sL "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Claude/Claude.yaml" -o Claude.yaml
-
-      # 合并逻辑：提取三个文件中 payload 下的规则行，并合并到 ai-rules.yaml 中。
-      - name: Merge Rules
+      - name: Fetch Rules Files
         run: |
-          # 提取 payload 段落（以 "payload:" 开头到文件末尾）的所有规则行。
-          # 同时可能需要去重，这里使用 sort + uniq 去重。
-          # 假设原始文件都是格式良好的 YAML，并且 payload 下的行格式为: "  - TYPE,VALUE"
+          mkdir rules
+          cp CustomRules.yaml rules/
+          curl -sL "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Gemini/Gemini.yaml" -o rules/Gemini.yaml
+          curl -sL "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/OpenAI/OpenAI.yaml" -o rules/OpenAI.yaml
+          curl -sL "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Claude/Claude.yaml" -o rules/Claude.yaml
 
-          # 提取三个文件的 payload 条目并合并
-          grep -E "^[[:space:]]+- " Gemini.yaml > Gemini_rules.txt
-          grep -E "^[[:space:]]+- " OpenAI.yaml >> Gemini_rules.txt
-          grep -E "^[[:space:]]+- " Claude.yaml >> Gemini_rules.txt
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
-          sort Gemini_rules.txt | uniq > merged_rules.txt
+      - name: Install PyYAML
+        run: |
+          pip install pyyaml
 
-          # 构建最终文件
-          echo "# NAME: AI规则集" > ai-rules.yaml
-          echo "# AUTHOR: SuperNG6" >> ai-rules.yaml
-          echo "# UPDATED: $(date '+%Y-%m-%d %H:%M:%S')" >> ai-rules.yaml
-          echo "# COMBINED FROM: Gemini, OpenAI, Claude" >> ai-rules.yaml
-          echo "payload:" >> ai-rules.yaml
-          cat merged_rules.txt >> ai-rules.yaml
+      - name: Merge Rules with Comments
+        run: |
+          python merge_rules.py
 
       - name: Check if changes
         run: |

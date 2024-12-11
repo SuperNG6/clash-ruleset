@@ -1,0 +1,9 @@
+# NAME: AI规则集
+# AUTHOR: your_name_or_bot
+# UPDATED: 2024-12-11 06:42:05
+# COMBINED FROM: Gemini, OpenAI, Claude
+payload:
+  - DOMAIN,ai.google.dev
+  - DOMAIN,alkalimakersuite-pa.clients6.google.com
+  - DOMAIN,browser-intake-datadoghq.com
+  - DOMAIN,cdn.usefathom.com
