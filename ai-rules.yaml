@@ -1,7 +1,14 @@
 # NAME: AI规则集
-# AUTHOR: your_name_or_bot
-# UPDATED: 2024-12-11 06:42:05
-# COMBINED FROM: Gemini, OpenAI, Claude
+# AUTHOR: SuperNG6
+# REPO: https://github.com/SuperNG6/clash-ruleset
+# UPDATED: 2024-12-11 06:59:52
+# DOMAIN: 12
+# DOMAIN-KEYWORD: 4
+# DOMAIN-SUFFIX: 33
+# IP-ASN: 1
+# IP-CIDR: 2
+# TOTAL: 52
+# COMBINED FROM: Unknown, Unknown, Unknown
 payload:
   - DOMAIN,ai.google.dev
   - DOMAIN,alkalimakersuite-pa.clients6.google.com
