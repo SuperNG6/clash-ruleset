@@ -1,6 +1,5 @@
-# NAME: AI规则集
-# AUTHOR: your_name_or_bot
+# NAME: 自定义规则
+# AUTHOR: SuperNG6
 # UPDATED: 2024-12-11 06:42:05
-# COMBINED FROM: Gemini, OpenAI, Claude
 payload:
   - DOMAIN,sora.com
