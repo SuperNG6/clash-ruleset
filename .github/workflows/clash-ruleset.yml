@@ -5,6 +5,11 @@ on:
     - cron: "0 0 * * *" # 每天0点执行一次（UTC时间），可根据需要调整
   workflow_dispatch:
 
+
+permissions:
+  contents: write # 赋予写权限以允许 push 操作
+  actions: read
+
 jobs:
   merge-rules:
     runs-on: ubuntu-latest
