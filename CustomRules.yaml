@@ -3,7 +3,4 @@
 # UPDATED: 2024-12-11 06:42:05
 # COMBINED FROM: Gemini, OpenAI, Claude
 payload:
-  - DOMAIN,ai.google.dev
-  - DOMAIN,alkalimakersuite-pa.clients6.google.com
-  - DOMAIN,browser-intake-datadoghq.com
-  - DOMAIN,cdn.usefathom.com
+  - DOMAIN,sora.com
