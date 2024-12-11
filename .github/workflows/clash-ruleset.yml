@@ -27,7 +27,6 @@ jobs:
         run: curl -sL "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Claude/Claude.yaml" -o Claude.yaml
 
       # 合并逻辑：提取三个文件中 payload 下的规则行，并合并到 ai-rules.yaml 中。
-      # 假设 ai-rules.yaml 的结构与示例类似，即最终文件需要包含基本头部信息和 payload 块。
       - name: Merge Rules
         run: |
           # 提取 payload 段落（以 "payload:" 开头到文件末尾）的所有规则行。
@@ -51,14 +50,12 @@ jobs:
 
       - name: Check if changes
         run: |
-          if git diff --quiet ai-rules.yaml; then
-            echo "No changes to commit"
-            exit 0
-          fi
+          git diff --quiet ai-rules.yaml || echo "Changes detected"
 
-      - name: Push
+      - name: Commit and Push if changes
+        if: steps.check_if_changes.outputs.changes_detected == 'true'
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git add ai-rules.yaml
           git commit -m "chore: update ai规则集 at $(date '+%Y-%m-%d %H:%M:%S')"
           git push -v --progress
+
