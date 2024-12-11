@@ -47,7 +47,7 @@ jobs:
 
           # 构建最终文件
           echo "# NAME: AI规则集" > ai-rules.yaml
-          echo "# AUTHOR: your_name_or_bot" >> ai-rules.yaml
+          echo "# AUTHOR: SuperNG6" >> ai-rules.yaml
           echo "# UPDATED: $(date '+%Y-%m-%d %H:%M:%S')" >> ai-rules.yaml
           echo "# COMBINED FROM: Gemini, OpenAI, Claude" >> ai-rules.yaml
           echo "payload:" >> ai-rules.yaml
