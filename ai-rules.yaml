@@ -1,13 +1,13 @@
 # NAME: AI规则集
 # AUTHOR: SuperNG6
 # REPO: https://github.com/SuperNG6/clash-ruleset
-# UPDATED: 2025-06-06 00:57:47
-# DOMAIN: 13
+# UPDATED: 2025-06-07 00:57:22
+# DOMAIN: 12
 # DOMAIN-KEYWORD: 4
 # DOMAIN-SUFFIX: 33
 # IP-ASN: 1
 # IP-CIDR: 2
-# TOTAL: 53
+# TOTAL: 52
 # COMBINED FROM: Gemini, OpenAI, Claude, 自定义规则
 payload:
   - DOMAIN,ai.google.dev
@@ -15,7 +15,6 @@ payload:
   - DOMAIN,browser-intake-datadoghq.com
   - DOMAIN,cdn.usefathom.com
   - DOMAIN,chat.openai.com.cdn.cloudflare.net
-  - DOMAIN,gemini.google.com
   - DOMAIN,makersuite.google.com
   - DOMAIN,openai-api.arkoselabs.com
   - DOMAIN,openaicom-api-bdcpf8c6d2e9atf6.z01.azurefd.net
